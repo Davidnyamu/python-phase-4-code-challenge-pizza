@@ -3,7 +3,7 @@ from models import db, Restaurant, RestaurantPizza, Pizza
 from flask_migrate import Migrate
 from flask import Flask, request, make_response
 from flask_restful import Api, Resource
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 
 import os
 
@@ -43,6 +43,29 @@ def get_restaurant_by_id(id):
     restaurant = Restaurant.query.get_or_404(id)
     return jsonify(restaurant.to_dict(rules=["-restaurant_pizzas.restaurant"]))
 
+@app.route('/restaurant/<init:id>', method=[ 'DELETE'])
+def delete_restaurant(id):
+    try:
+        restaurant = Restaurant.query.get_or_404(id)
+        db.session.delete(restaurant)
+        db.session.commit()
+        return jsonify({}), 204
+    except Exception as e:
+        db.session.rollback()
+        abort(404, description="Restaurant not found")
 
+@app.post('restaurant_pizzas')
+def new_restaurant():
+    try:
+        restaurant_pizzas = RestaurantPizza(
+            price = request.json['price'],
+            pizzas_id = request.json['pizza_id'],
+            restaurant_id =request.json['restaurant_id']
+  )
+        db.session.add(restaurant_pizzas)
+        db.session.commit()
+        return restaurant_pizzas.to_dict(), 201
+    except:
+        return {"error": ["validation error"]},400
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
