@@ -12,7 +12,6 @@ metadata = MetaData(
 
 db = SQLAlchemy(metadata=metadata)
 
-
 class Restaurant(db.Model, SerializerMixin):
     __tablename__ = "restaurants"
 
@@ -20,11 +19,11 @@ class Restaurant(db.Model, SerializerMixin):
     name = db.Column(db.String)
     address = db.Column(db.String)
 
-    # add relationship
-    restaurant_pizzas = db.relationship('RestaurantPizzas',back_populates='restaurant')
+    # Add relationship
+    restaurant_pizzas = db.relationship('RestaurantPizza', back_populates='restaurant')
     
-    # add serialization rules
-    serialize_rules =[-'restaurant_pizzas']
+    # Add serialization rules
+    serialize_rules = ('-restaurant_pizzas',)
 
     def __repr__(self):
         return f"<Restaurant {self.name}>"
@@ -37,12 +36,11 @@ class Pizza(db.Model, SerializerMixin):
     name = db.Column(db.String)
     ingredients = db.Column(db.String)
 
-    # add relationship
-    pizzas = db.relationship('Pizzas', back_populates='restaurant_pizzas')
+    # Add relationship
+    restaurant_pizzas = db.relationship('RestaurantPizza', back_populates='pizza')
 
-
-    # add serialization rules
-    serialize_rules = ['-pizzas']
+    # Add serialization rules``
+    serialize_rules = ('-restaurant_pizzas',)
 
     def __repr__(self):
         return f"<Pizza {self.name}, {self.ingredients}>"
@@ -54,13 +52,17 @@ class RestaurantPizza(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     price = db.Column(db.Integer, nullable=False)
 
-    # add relationships
-    restaurant = db.relationship('Restaurant',back_populates='restaurant_pizzas')
+    # Add relationships
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
+    pizza_id = db.Column(db.Integer, db.ForeignKey('pizzas.id'))
 
-    # add serialization rules
-    serialize_rules =['-restaurant.restaurant-pizas', '-pizzas,.restaurant']
+    restaurant = db.relationship('Restaurant', back_populates='restaurant_pizzas')
+    pizza = db.relationship('Pizza', back_populates='restaurant_pizzas')
 
-    # add validation
+    # Add serialization rules
+    serialize_rules = ('-restaurant.restaurant_pizzas', '-pizza.restaurant_pizzas')
+
+    # Add validation
     @validates('price')
     def validates_price(self, key, value):
         if value < 1 or value > 30:
