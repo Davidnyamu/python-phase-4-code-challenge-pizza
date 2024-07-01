@@ -34,17 +34,17 @@ def get_by_id(id):
         "name": restaurant.name,
         "restaurant_pizzas": [
             {
-                "id": rp.id,
+                "id": pizza.id,
                 "pizza": {
-                    "id": rp.pizza.id,
-                    "ingredients": rp.pizza.ingredients,
-                    "name": rp.pizza.name
+                    "id": pizza.pizza.id,
+                    "ingredients": pizza.pizza.ingredients,
+                    "name": pizza.pizza.name
                 },
-                "pizza_id": rp.pizza_id,
-                "price": rp.price,
-                "restaurant_id": rp.restaurant_id
+                "pizza_id": pizza.pizza_id,
+                "price": pizza.price,
+                "restaurant_id": pizza.restaurant_id
             }
-            for rp in restaurant.restaurant_pizzas
+            for pizza in restaurant.restaurant_pizzas
         ]
     }
 
